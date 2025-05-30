@@ -1,12 +1,11 @@
 'use client'
 
-import { Container, Title } from '@/styles/container'
 import { Button, TextInput, PasswordInput } from '@mantine/core'
 import { signIn } from 'next-auth/react'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
-import { FormContainer, Logo } from './styles'
+import { ContainerLogin, FormContainer, Logo, Title } from './styles'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('admin@example.com')
@@ -32,7 +31,7 @@ export default function LoginPage() {
   }
 
   return (
-    <Container>
+    <ContainerLogin>
       <Logo>
         <Title>Brain Agro Control</Title>
         <Image
@@ -62,6 +61,6 @@ export default function LoginPage() {
           Entrar
         </Button>
       </FormContainer>
-    </Container>
+    </ContainerLogin>
   )
 }
