@@ -1,65 +1,67 @@
-'use client';
+'use client'
 
-type User = {
-  id: number;
-  name: string;
-  email: string;
-  createdAt: string; // ou Date, dependendo de como vem do backend
-};
+import { Container, Title } from '@/styles/container'
+import { Button, TextInput, PasswordInput } from '@mantine/core'
+import { signIn } from 'next-auth/react'
+import Image from 'next/image'
+import { useRouter } from 'next/navigation'
+import { useState } from 'react'
+import { FormContainer, Logo } from './styles'
 
-import { useState } from 'react';
+export default function LoginPage() {
+  const [email, setEmail] = useState('admin@example.com')
+  const [password, setPassword] = useState('admin')
+  const router = useRouter()
+  const [error, setError] = useState('')
 
-const Home = () => {
-  const [users, setUsers] = useState([]);
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
 
-  const fetchUsers = async (page = 1) => {
-    const res = await fetch(`/api/users?page=${page}&pageSize=5`);
-    const data = await res.json();
-    setUsers(data.data);
-  };
+    const res = await signIn('credentials', {
+      redirect: false,
+      email,
+      password,
+      callbackUrl: '/dashboard',
+    })
 
-  const handleCreate = async () => {
-    const res = await fetch('/api/users', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, email }),
-    });
-
-    if (res.ok) {
-      fetchUsers();
+    if (res?.error) {
+      setError('Credenciais inválidas')
+    } else {
+      router.push('/dashboard')
     }
-  };
+  }
 
   return (
-    <div>
-      <h1>Usuários</h1>
-      <div>
-        <input
-          type="text"
-          placeholder="Nome"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
+    <Container>
+      <Logo>
+        <Title>Brain Agro Control</Title>
+        <Image
+          src={'/Logo.svg'}
+          alt='Emprestimos para agro negócio'
+          width={140}
+          height={62}
         />
-        <input
-          type="email"
-          placeholder="Email"
+      </Logo>
+      <FormContainer onSubmit={handleSubmit}>
+        <TextInput
+          placeholder='you@example.com'
           value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          onChange={(e) => setEmail(e.currentTarget.value)}
+          required
+          mt='md'
         />
-        <button onClick={handleCreate}>Criar Usuário</button>
-      </div>
-
-      <ul>
-        {users.map((user: User) => (
-          <li key={user.id}>{user.name} - {user.email}</li>
-        ))}
-      </ul>
-
-      <button onClick={() => fetchUsers()}>Carregar Usuários</button>
-    </div>
-  );
-};
-
-export default Home;
+        <PasswordInput
+          placeholder='••••••••'
+          value={password}
+          onChange={(e) => setPassword(e.currentTarget.value)}
+          required
+          mt='md'
+        />
+        {error && <div>{error}</div>}
+        <Button color={'green'} fullWidth mt='xl' type='submit'>
+          Entrar
+        </Button>
+      </FormContainer>
+    </Container>
+  )
+}

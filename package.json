@@ -2,6 +2,14 @@
   "name": "brain-agro",
   "version": "0.1.0",
   "private": true,
+  "prettier": {
+    "useTabs": false,
+    "semi": false,
+    "singleQuote": true,
+    "jsxSingleQuote": true,
+    "bracketSpacing": true,
+    "arrowParens": "always"
+  },
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
@@ -9,8 +17,13 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.0",
+    "@mantine/core": "^8.0.2",
+    "@mantine/hooks": "^8.0.2",
     "@prisma/client": "^6.8.2",
     "next": "15.3.2",
+    "next-auth": "^4.24.11",
     "prisma": "^6.8.2",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
