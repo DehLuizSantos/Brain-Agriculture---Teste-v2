@@ -4,59 +4,69 @@ import { Button, TextInput, PasswordInput } from '@mantine/core'
 import { signIn } from 'next-auth/react'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
-import { useState } from 'react'
-import { ContainerLogin, FormContainer, Logo, Title } from './styles'
+import { ContainerLogin, FormContainer, Logo } from './styles'
+import { useForm } from '@mantine/form'
 
 export default function LoginPage() {
-  const [email, setEmail] = useState('admin@example.com')
-  const [password, setPassword] = useState('admin')
   const router = useRouter()
-  const [error, setError] = useState('')
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const form = useForm({
+    mode: 'uncontrolled',
+    initialValues: {
+      email: 'admin@example.com',
+      password: 'admin',
+    },
 
+    validate: {
+      email: (value) =>
+        /^\S+@\S+$/.test(value) ? null : 'O email deve ser admin@example.com',
+      password: (value) =>
+        value === 'admin' ? null : 'A senha deve ser admin',
+    },
+  })
+
+  const handleSubmit = async () => {
     const res = await signIn('credentials', {
       redirect: false,
-      email,
-      password,
+      email: form.values.email,
+      password: form.values.password,
       callbackUrl: '/dashboard',
     })
 
-    if (res?.error) {
-      setError('Credenciais inválidas')
+    if (!form.isValid()) {
+      form.setErrors({ email: res?.error, password: res?.error })
     } else {
-      router.push('/dashboard')
+      router.push('/system/dashboard')
     }
   }
 
   return (
     <ContainerLogin>
       <Logo>
-        <Title>Brain Agro Control</Title>
         <Image
           src={'/Logo.svg'}
           alt='Emprestimos para agro negócio'
           width={140}
           height={62}
+          priority={true}
         />
       </Logo>
-      <FormContainer onSubmit={handleSubmit}>
+
+      <FormContainer onSubmit={form.onSubmit(() => handleSubmit())}>
         <TextInput
           placeholder='you@example.com'
-          value={email}
-          onChange={(e) => setEmail(e.currentTarget.value)}
           required
+          {...form.getInputProps('email')}
           mt='md'
+          error={form.getInputProps('email').error}
         />
         <PasswordInput
           placeholder='••••••••'
-          value={password}
-          onChange={(e) => setPassword(e.currentTarget.value)}
+          {...form.getInputProps('password')}
+          error={form.getInputProps('password').error}
           required
           mt='md'
         />
-        {error && <div>{error}</div>}
         <Button color={'green'} fullWidth mt='xl' type='submit'>
           Entrar
         </Button>

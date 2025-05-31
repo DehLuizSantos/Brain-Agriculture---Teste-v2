@@ -66,7 +66,7 @@ export function Providers({ children, session }: ProvidersProps) {
   return (
     <SessionProvider session={session}>
       <ThemeProvider theme={theme}>
-        <MantineProvider>
+        <MantineProvider defaultColorScheme='dark'>
           <GlobalStyles />
           {children}
         </MantineProvider>

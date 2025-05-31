@@ -3,7 +3,6 @@ import { Roboto } from 'next/font/google'
 import '@mantine/core/styles.css'
 import { ColorSchemeScript, mantineHtmlProps } from '@mantine/core'
 import { Providers } from './providers'
-import { GlobalStyles } from '../styles/styles'
 
 export const metadata: Metadata = {
   title: 'Brain Agro',
@@ -11,7 +10,9 @@ export const metadata: Metadata = {
 }
 
 const roboto = Roboto({
+  subsets: ['latin'],
   variable: '--font-roboto',
+  display: 'swap',
 })
 
 export default function RootLayout({
@@ -20,12 +21,11 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang='pt-BR' {...mantineHtmlProps}>
+    <html lang='pt-BR' {...mantineHtmlProps} className={roboto.variable}>
       <head>
         <ColorSchemeScript />
       </head>
       <body className={`${roboto.variable}`}>
-        <GlobalStyles />
         <Providers>{children}</Providers>
       </body>
     </html>
