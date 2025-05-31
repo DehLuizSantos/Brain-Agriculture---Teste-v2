@@ -19,4 +19,15 @@ export const Links = styled(Link)`
   &[data-active='false'] {
     background-color: transparent;
   }
+
+  &:hover {
+    opacity: 0.6;
+  }
+`
+
+export const Logo = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 40px;
 `

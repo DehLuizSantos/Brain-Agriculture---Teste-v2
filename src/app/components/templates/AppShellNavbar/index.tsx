@@ -3,7 +3,7 @@
 import { AppShell } from '@mantine/core'
 import Image from 'next/image'
 import { useState } from 'react'
-import { Links } from './styles'
+import { Links, Logo } from './styles'
 
 type AppShellNavbar = {
   links: {
@@ -18,13 +18,15 @@ export default function AppShellNavbar({ links }: AppShellNavbar) {
 
   return (
     <AppShell.Navbar p='md'>
-      <Image
-        src={'/Logo.svg'}
-        alt='Emprestimos para agro negócio'
-        width={100}
-        height={30}
-        priority={true}
-      />
+      <Logo>
+        <Image
+          src={'/Logo.svg'}
+          alt='Emprestimos para agro negócio'
+          width={120}
+          height={50}
+          priority={true}
+        />
+      </Logo>
       {links.map((item) => (
         <Links
           data-active={item.name === active ? 'true' : 'false'}
