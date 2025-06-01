@@ -23,13 +23,14 @@
     "@mantine/form": "^8.0.2",
     "@mantine/hooks": "^8.0.2",
     "@prisma/client": "^6.8.2",
+    "mantine-form-zod-resolver": "^1.2.1",
     "next": "15.3.2",
     "next-auth": "^4.24.11",
     "prisma": "^6.8.2",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "sqlite3": "^5.1.7",
-    "zod": "^3.25.32"
+    "zod": "^3.25.42"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

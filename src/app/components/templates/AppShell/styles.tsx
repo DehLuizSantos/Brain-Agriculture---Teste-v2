@@ -3,4 +3,5 @@ import { AppShell } from '@mantine/core'
 
 export const Main = styled(AppShell.Main)`
   background-color: ${(props) => props.theme.colors.leaf};
+  width: 100%;
 `
