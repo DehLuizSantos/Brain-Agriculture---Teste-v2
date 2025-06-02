@@ -10,7 +10,6 @@ import FormProdutores from '@/app/components/organismos/FormProdutores'
 import { useForm } from '@mantine/form'
 import { zodResolver } from 'mantine-form-zod-resolver'
 import { useProdutores } from '@/app/hooks/useProdutores'
-import { useCreateProdutor } from '@/app/hooks/useProdutores/useCreateProdutor'
 import { Button, Modal } from '@mantine/core'
 import { useProdutoresStore } from '@/store/produtoresStore'
 
@@ -39,9 +38,9 @@ export default function Produtores() {
     total,
     deleteProdutor,
     editProdutor,
-    isLoading,
-    isDeleting,
-    isEditing,
+    addProdutor,
+    error,
+    loading,
   } = useProdutores(activePage)
 
   const handleDelete = (row: ProdutorType) => {
@@ -49,15 +48,9 @@ export default function Produtores() {
     setOpenModalDelete(true)
   }
 
-  const {
-    mutate: criarProdutor,
-    isPending,
-    error: ErrorMutation,
-  } = useCreateProdutor()
-
   // Exemplo de uso:
   const handleCreate = (data: ProdutorType) => {
-    criarProdutor(data)
+    addProdutor(data)
     setOpenForm(false)
     form.reset()
   }
@@ -73,10 +66,9 @@ export default function Produtores() {
     { key: 'cidade', label: 'Cidade' },
   ]
 
-  if (isLoading || isPending || isDeleting || isEditing)
-    return <p>Carregando produtores...</p>
+  if (loading) return <p>Carregando produtores...</p>
 
-  if (ErrorMutation) {
+  if (error) {
     return <p>Erro ao renderizar produtores</p>
   }
 

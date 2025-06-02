@@ -6,10 +6,10 @@ import { DashboardCards } from '@/app/components/moleculas/DashboardCard'
 import { DashboardCharts } from '@/app/components/moleculas/DashboardCharts'
 
 export default function Dashboard() {
-  const { data, isLoading, isError } = useDashboardData()
+  const { data, isLoading, error } = useDashboardData()
 
   if (isLoading) return <p>Carregando...</p>
-  if (isError || !data) return <p>Erro ao carregar dados</p>
+  if (error || !data) return <p>Erro ao carregar dados</p>
   return (
     <DashboardWrapper>
       <DashboardCards />

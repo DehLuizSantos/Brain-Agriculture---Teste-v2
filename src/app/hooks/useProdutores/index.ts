@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { ProdutorType } from '../../../../types/interfaces/produtores'
 import { useProdutoresStore } from '@/store/produtoresStore'
+import { useDashboardData } from '../useDashboard'
 
 const PAGE_SIZE = 20
 
@@ -14,8 +15,10 @@ export function useProdutores(paginationValue: number) {
   const { setOpenForm, setOpenModalDelete, setActivePage } =
     useProdutoresStore()
 
+  const { refetch: refetchDashboardData } = useDashboardData()
+
   // GET: lista paginada de produtores
-  const { data, isLoading } = useQuery<FetchResponse>({
+  const { data, isLoading, refetch } = useQuery<FetchResponse>({
     queryKey: ['produtores', paginationValue],
     queryFn: async () => {
       const res = await fetch(
@@ -34,7 +37,9 @@ export function useProdutores(paginationValue: number) {
       return res.json()
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['produtores'] })
+      queryClient.invalidateQueries({ queryKey: ['produtores', 'dashboard'] })
+      refetch()
+      refetchDashboardData()
       setOpenModalDelete(false)
     },
   })
@@ -51,19 +56,52 @@ export function useProdutores(paginationValue: number) {
       return res.json()
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['produtores'] })
+      queryClient.invalidateQueries({ queryKey: ['produtores', 'dashboard'] })
+      refetch()
+      refetchDashboardData()
       setActivePage(1)
       setOpenForm(false)
+    },
+  })
+
+  // POST: adicionar produtor
+  const addMutation = useMutation({
+    mutationFn: async (novoProdutor: ProdutorType) => {
+      const res = await fetch('/api/produtores', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(novoProdutor),
+      })
+
+      if (!res.ok) {
+        const erro = await res.json()
+        throw new Error(erro?.error || 'Erro ao criar produtor')
+      }
+
+      return res.json()
+    },
+
+    // ✅ Revalida os dados após criar
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['produtores', 'dashboard'] })
+      refetchDashboardData()
+      refetch()
     },
   })
 
   return {
     produtores: data?.data ?? [],
     total: data?.total ?? 0,
-    isLoading,
     deleteProdutor: deleteMutation.mutate,
     editProdutor: editMutation.mutate,
-    isDeleting: deleteMutation.isPending,
-    isEditing: editMutation.isPending,
+    addProdutor: addMutation.mutate,
+    loading:
+      isLoading ||
+      addMutation.isPending ||
+      deleteMutation.isPending ||
+      editMutation.isPending,
+    error: editMutation.error || addMutation.error || deleteMutation.error,
   }
 }

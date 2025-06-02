@@ -18,7 +18,7 @@ type DashboardData = {
 }
 
 export function useDashboardData() {
-  return useQuery<DashboardData>({
+  const { data, error, isLoading, refetch } = useQuery<DashboardData>({
     queryKey: ['dashboard'],
     queryFn: async () => {
       const res = await fetch('/api/dashboard')
@@ -31,4 +31,11 @@ export function useDashboardData() {
     },
     staleTime: 1000 * 60 * 5, // 5 minutos (ajuste opcional)
   })
+
+  return {
+    data,
+    error,
+    isLoading,
+    refetch,
+  }
 }
