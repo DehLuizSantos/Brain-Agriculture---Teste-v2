@@ -1,6 +1,6 @@
 import z from 'zod'
 
-type Culturas = 'Soja' | 'Milho' | 'Algodão' | 'Café' | 'Cana de Açucar'
+export type Culturas = 'Soja' | 'Milho' | 'Algodão' | 'Café' | 'Cana de Açucar'
 
 export const produtoresInitialValues = {
   nomeProdutor: '',

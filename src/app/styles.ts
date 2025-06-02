@@ -4,7 +4,7 @@ export const ContainerLogin = styled.div`
   background-color: ${(props) => props.theme.colors.dark};
   position: relative;
   width: 100%;
-  height: 100vh; /* ou o valor que quiser */
+  height: 100vh;
 
   &::before {
     content: '';
