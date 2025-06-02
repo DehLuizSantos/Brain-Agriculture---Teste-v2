@@ -17,7 +17,7 @@ export const produtoresInitialValues = {
 
 export const produtoresSchema = z
   .object({
-    id: z.number().optional(),
+    id: z.number().optional().or(z.undefined()),
     nomeProdutor: z.string(),
     documento: z
       .string()

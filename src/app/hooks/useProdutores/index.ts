@@ -3,14 +3,14 @@ import { ProdutorType } from '../../../../types/interfaces/produtores'
 import { useProdutoresStore } from '@/store/produtoresStore'
 import { useDashboardData } from '../useDashboard'
 
-const PAGE_SIZE = 20
+const PAGE_SIZE = 5
 
 type FetchResponse = {
   data: ProdutorType[]
   total: number
 }
 
-export function useProdutores(paginationValue: number) {
+export function useProdutores(paginationValue: number, search?: string) {
   const queryClient = useQueryClient()
   const { setOpenForm, setOpenModalDelete, setActivePage } =
     useProdutoresStore()
@@ -19,10 +19,10 @@ export function useProdutores(paginationValue: number) {
 
   // GET: lista paginada de produtores
   const { data, isLoading, refetch } = useQuery<FetchResponse>({
-    queryKey: ['produtores', paginationValue],
+    queryKey: ['produtores', paginationValue, search],
     queryFn: async () => {
       const res = await fetch(
-        `/api/produtores?page=${paginationValue}&limit=${PAGE_SIZE}`
+        `/api/produtores?page=${paginationValue}&limit=${PAGE_SIZE}&search=${search}`
       )
       if (!res.ok) throw new Error('Erro ao buscar produtores')
       return res.json()

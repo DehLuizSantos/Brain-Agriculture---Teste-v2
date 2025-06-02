@@ -18,6 +18,7 @@ import { UseFormReturnType } from '@mantine/form'
 import { Inputcpf } from '../../atomos/InputCPF'
 import { useState } from 'react'
 import InputCnpj from '../../atomos/InputCNPJ'
+import { useFocusTrap } from '@mantine/hooks'
 
 type FormProdutorProps = {
   initialValues?: ProdutorType
@@ -34,6 +35,8 @@ export default function FormProdutores({
   openForm,
   setOpenForm,
 }: FormProdutorProps) {
+  const focusTrapRef = useFocusTrap()
+
   const [isFisicalPerson, setIsFisicalPerson] = useState('fisica')
 
   const submitValues = (row: ProdutorType) => {
@@ -44,8 +47,8 @@ export default function FormProdutores({
     <FormProdutoresContainer>
       <Title>
         <div className='text'>
-          <h2>Registre Produtores no sistema</h2>
-          <p>Adicione, delete e edite os produtores</p>
+          <h2>Produtores</h2>
+          <p>Adicione, delete e edite os produtores no sistema</p>
         </div>
         <div className='buttons'>
           {openForm && (
@@ -77,7 +80,7 @@ export default function FormProdutores({
 
       {openForm && (
         <>
-          <FormInputs>
+          <FormInputs ref={focusTrapRef}>
             <div className='dialog'>
               <Radio.Group
                 name='isPessoaFisica'
@@ -96,6 +99,7 @@ export default function FormProdutores({
             </div>
             <TextInput
               label='Nome do Produtor'
+              data-autofocus
               {...form.getInputProps('nomeProdutor')}
               error={form.getInputProps('nomeProdutor').error}
               required
@@ -106,12 +110,15 @@ export default function FormProdutores({
             ) : (
               <InputCnpj form={form} />
             )}
-
-            <TextInput
+            <Select
               label='Nome da Fazenda'
+              data={[
+                'Noite Feliz',
+                'Noite Encantada',
+                'Sitio do Picapau',
+                'Osvald Reis',
+              ]}
               {...form.getInputProps('nomeFazenda')}
-              error={form.getInputProps('nomeFazenda').error}
-              required
             />
 
             <NumberInput
