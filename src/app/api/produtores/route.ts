@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { z } from 'zod'
 import { Culturas, ProdutorType } from '../../../../types/interfaces/produtores'
+import { Prisma } from '@prisma/client'
 
 // Schema para validação do POST
 const produtorSchema = z.object({
@@ -16,12 +17,22 @@ const produtorSchema = z.object({
   cidade: z.string(),
 })
 
-// ✅ POST: Criação de produtor e fazenda
+// Função para validar e parsear culturas com Zod
+function parseCulturas(raw: unknown): Culturas[] {
+  try {
+    const parsed = typeof raw === 'string' ? JSON.parse(raw) : raw
+    return z
+      .array(z.enum(['Soja', 'Milho', 'Algodão', 'Café', 'Cana de Açucar']))
+      .parse(parsed)
+  } catch {
+    return []
+  }
+}
+
+// POST: criação de produtor + fazenda
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
-    const parsed = produtorSchema.parse(body) // o seu schema já validado
-
     const {
       nomeProdutor,
       documento,
@@ -32,9 +43,8 @@ export async function POST(req: NextRequest) {
       culturasPlantadas,
       estado,
       cidade,
-    } = parsed
+    } = produtorSchema.parse(body)
 
-    // Validar soma das áreas (redundante, mas ok)
     if (areaAgricultavel + areaVegetacao > totalHectares) {
       return NextResponse.json(
         {
@@ -45,53 +55,39 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    const produtorExistente = await prisma.produtor.findUnique({
+    // Upsert: tenta atualizar produtor pelo documento, ou cria
+    const produtor = await prisma.produtor.upsert({
       where: { documento },
-      include: { fazendas: true },
-    })
-
-    let produtor
-
-    if (!produtorExistente) {
-      produtor = await prisma.produtor.create({
-        data: {
-          nome: nomeProdutor,
-          documento,
-          fazendas: {
-            create: {
-              nome: nomeFazenda,
-              totalHectares,
-              areaAgricultavel,
-              areaVegetacao,
-              culturas: JSON.stringify(culturasPlantadas),
-              estado,
-              cidade,
-            },
+      update: {
+        fazendas: {
+          create: {
+            nome: nomeFazenda,
+            totalHectares,
+            areaAgricultavel,
+            areaVegetacao,
+            culturas: JSON.stringify(culturasPlantadas),
+            estado,
+            cidade,
           },
         },
-        include: {
-          fazendas: true,
+      },
+      create: {
+        nome: nomeProdutor,
+        documento,
+        fazendas: {
+          create: {
+            nome: nomeFazenda,
+            totalHectares,
+            areaAgricultavel,
+            areaVegetacao,
+            culturas: JSON.stringify(culturasPlantadas),
+            estado,
+            cidade,
+          },
         },
-      })
-    } else {
-      const novaFazenda = await prisma.fazenda.create({
-        data: {
-          nome: nomeFazenda,
-          totalHectares,
-          areaAgricultavel,
-          areaVegetacao,
-          culturas: JSON.stringify(culturasPlantadas),
-          estado,
-          cidade,
-          produtorId: produtorExistente.id,
-        },
-      })
-
-      produtor = {
-        ...produtorExistente,
-        fazendas: [...produtorExistente.fazendas, novaFazenda],
-      }
-    }
+      },
+      include: { fazendas: true },
+    })
 
     return NextResponse.json(produtor)
   } catch (error) {
@@ -103,18 +99,19 @@ export async function POST(req: NextRequest) {
   }
 }
 
-// ✅ GET: Listagem com paginação e busca opcional
+// GET: listagem com paginação e busca otimizada
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url)
-    const page = Number(searchParams.get('page') || '1')
-    const limit = Number(searchParams.get('limit') || '10')
+    const page = Math.max(Number(searchParams.get('page') || '1'), 1)
+    const limit = Math.min(Number(searchParams.get('limit') || '10'), 100)
     const search = searchParams.get('search')?.toLowerCase() || ''
 
     const where = search
       ? {
           nome: {
             contains: search,
+            mode: Prisma.QueryMode.insensitive,
           },
         }
       : {}
@@ -125,42 +122,28 @@ export async function GET(req: NextRequest) {
       where,
       skip: (page - 1) * limit,
       take: limit,
-      include: {
-        fazendas: true,
-      },
+      include: { fazendas: true },
+      orderBy: { nome: 'asc' },
     })
 
-    // Função para validar e parsear culturas
-    function parseCulturas(raw: unknown): Culturas[] {
-      try {
-        // Faz parse do JSON
-        const parsed = typeof raw === 'string' ? JSON.parse(raw) : raw
+    const produtores: ProdutorType[] = []
 
-        // Usa o Zod para validar o array
-        const culturas = z
-          .array(z.enum(['Soja', 'Milho', 'Algodão', 'Café', 'Cana de Açucar']))
-          .parse(parsed)
-
-        return culturas
-      } catch {
-        return []
+    for (const produtor of produtoresDb) {
+      for (const fazenda of produtor.fazendas) {
+        produtores.push({
+          id: produtor.id,
+          nomeProdutor: produtor.nome,
+          documento: produtor.documento,
+          nomeFazenda: fazenda.nome,
+          totalHectares: fazenda.totalHectares,
+          areaAgricultavel: fazenda.areaAgricultavel,
+          areaVegetacao: fazenda.areaVegetacao,
+          culturasPlantadas: parseCulturas(fazenda.culturas),
+          estado: fazenda.estado,
+          cidade: fazenda.cidade,
+        })
       }
     }
-
-    const produtores: ProdutorType[] = produtoresDb.flatMap((produtor) =>
-      produtor.fazendas.map((fazenda) => ({
-        id: produtor.id,
-        nomeProdutor: produtor.nome,
-        documento: produtor.documento,
-        nomeFazenda: fazenda.nome,
-        totalHectares: fazenda.totalHectares,
-        areaAgricultavel: fazenda.areaAgricultavel,
-        areaVegetacao: fazenda.areaVegetacao,
-        culturasPlantadas: parseCulturas(fazenda.culturas),
-        estado: fazenda.estado,
-        cidade: fazenda.cidade,
-      }))
-    )
 
     return NextResponse.json({ data: produtores, total })
   } catch (error) {

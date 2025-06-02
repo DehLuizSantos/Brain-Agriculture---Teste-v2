@@ -99,7 +99,9 @@ export default function Produtores() {
         />
 
         <Modal
-          title={`Tem certeza que deseja deletar o produtor: ${form.values.nomeProdutor}`}
+          size='xs'
+          title={`Deletar:
+              ${form.values.nomeProdutor}`}
           opened={openModalDelete}
           centered
           transitionProps={{ transition: 'fade', duration: 200 }}
