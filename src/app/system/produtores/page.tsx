@@ -55,8 +55,6 @@ export default function Produtores() {
     error: ErrorMutation,
   } = useCreateProdutor()
 
-  console.log(form.values)
-
   // Exemplo de uso:
   const handleCreate = (data: ProdutorType) => {
     criarProdutor(data)
