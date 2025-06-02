@@ -115,7 +115,6 @@ export async function GET(req: NextRequest) {
       ? {
           nome: {
             contains: search,
-            mode: 'insensitive',
           },
         }
       : {}

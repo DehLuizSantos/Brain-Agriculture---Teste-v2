@@ -44,8 +44,8 @@ export default function FormProdutores({
     <FormProdutoresContainer>
       <Title>
         <div className='text'>
-          <h2>Registre Produtores no sistema</h2>
-          <p>Adicione, delete e edite os produtores</p>
+          <h2>Produtores</h2>
+          <p>Adicione, delete e edite os produtores no sistema</p>
         </div>
         <div className='buttons'>
           {openForm && (
