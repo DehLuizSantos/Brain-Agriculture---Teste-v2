@@ -13,3 +13,23 @@ model User {
   email     String   @unique
   createdAt DateTime @default(now())
 }
+
+model Produtor {
+  id        Int       @id @default(autoincrement())
+  nome      String
+  documento String    @unique
+  fazendas  Fazenda[] // relação 1:N
+}
+
+model Fazenda {
+  id               Int      @id @default(autoincrement())
+  nome             String
+  totalHectares    Int
+  areaAgricultavel Int
+  areaVegetacao    Int
+  culturas         String?
+  estado           String
+  cidade           String
+  produtorId       Int
+  produtor         Produtor @relation(fields: [produtorId], references: [id])
+}

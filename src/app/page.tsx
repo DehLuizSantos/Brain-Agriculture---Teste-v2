@@ -1,65 +1,76 @@
-'use client';
+'use client'
 
-type User = {
-  id: number;
-  name: string;
-  email: string;
-  createdAt: string; // ou Date, dependendo de como vem do backend
-};
+import { Button, TextInput, PasswordInput } from '@mantine/core'
+import { signIn } from 'next-auth/react'
+import Image from 'next/image'
+import { useRouter } from 'next/navigation'
+import { ContainerLogin, FormContainer, Logo } from './styles'
+import { useForm } from '@mantine/form'
 
-import { useState } from 'react';
+export default function LoginPage() {
+  const router = useRouter()
 
-const Home = () => {
-  const [users, setUsers] = useState([]);
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
+  const form = useForm({
+    mode: 'uncontrolled',
+    initialValues: {
+      email: 'admin@example.com',
+      password: 'admin',
+    },
 
-  const fetchUsers = async (page = 1) => {
-    const res = await fetch(`/api/users?page=${page}&pageSize=5`);
-    const data = await res.json();
-    setUsers(data.data);
-  };
+    validate: {
+      email: (value) =>
+        /^\S+@\S+$/.test(value) ? null : 'O email deve ser admin@example.com',
+      password: (value) =>
+        value === 'admin' ? null : 'A senha deve ser admin',
+    },
+  })
 
-  const handleCreate = async () => {
-    const res = await fetch('/api/users', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, email }),
-    });
+  const handleSubmit = async () => {
+    const res = await signIn('credentials', {
+      redirect: false,
+      email: form.values.email,
+      password: form.values.password,
+      callbackUrl: '/dashboard',
+    })
 
-    if (res.ok) {
-      fetchUsers();
+    if (!form.isValid()) {
+      form.setErrors({ email: res?.error, password: res?.error })
+    } else {
+      router.push('/system/dashboard')
     }
-  };
+  }
 
   return (
-    <div>
-      <h1>Usuários</h1>
-      <div>
-        <input
-          type="text"
-          placeholder="Nome"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
+    <ContainerLogin>
+      <Logo>
+        <Image
+          src={'/Logo.svg'}
+          alt='Emprestimos para agro negócio'
+          width={140}
+          height={62}
+          priority={true}
         />
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
+      </Logo>
+
+      <FormContainer onSubmit={form.onSubmit(() => handleSubmit())}>
+        <TextInput
+          placeholder='you@example.com'
+          required
+          {...form.getInputProps('email')}
+          mt='md'
+          error={form.getInputProps('email').error}
         />
-        <button onClick={handleCreate}>Criar Usuário</button>
-      </div>
-
-      <ul>
-        {users.map((user: User) => (
-          <li key={user.id}>{user.name} - {user.email}</li>
-        ))}
-      </ul>
-
-      <button onClick={() => fetchUsers()}>Carregar Usuários</button>
-    </div>
-  );
-};
-
-export default Home;
+        <PasswordInput
+          placeholder='••••••••'
+          {...form.getInputProps('password')}
+          error={form.getInputProps('password').error}
+          required
+          mt='md'
+        />
+        <Button color={'green'} fullWidth mt='xl' type='submit'>
+          Entrar
+        </Button>
+      </FormContainer>
+    </ContainerLogin>
+  )
+}
