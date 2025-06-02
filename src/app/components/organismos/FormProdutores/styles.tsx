@@ -33,7 +33,7 @@ export const Title = styled.div`
   }
 
   h2 {
-    color: ${(props) => props.theme.colors.white};
+    color: ${(props) => props.theme.colors.green};
     font-size: ${(props) => props.theme.fonts.large};
   }
 

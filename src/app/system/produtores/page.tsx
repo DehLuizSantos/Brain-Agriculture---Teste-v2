@@ -12,6 +12,7 @@ import { zodResolver } from 'mantine-form-zod-resolver'
 import { useProdutores } from '@/app/hooks/useProdutores'
 import { Button, Modal } from '@mantine/core'
 import { useProdutoresStore } from '@/store/produtoresStore'
+import { FadingComponent } from '@/app/components/atomos/FadingAnimation'
 
 export default function Produtores() {
   const form = useForm<ProdutorType>({
@@ -26,6 +27,7 @@ export default function Produtores() {
     setOpenModalDelete,
     activePage,
     setActivePage,
+    search,
   } = useProdutoresStore()
 
   const handleEdit = (row: ProdutorType) => {
@@ -41,7 +43,7 @@ export default function Produtores() {
     addProdutor,
     error,
     loading,
-  } = useProdutores(activePage)
+  } = useProdutores(activePage, search)
 
   const handleDelete = (row: ProdutorType) => {
     form.setValues(row)
@@ -73,22 +75,19 @@ export default function Produtores() {
   }
 
   return (
-    <ProdutoresWrapper>
-      <FormProdutores
-        openForm={openForm}
-        setOpenForm={setOpenForm}
-        form={form}
-        onSubmit={(formValues) =>
-          form.values.id
-            ? editProdutor({ id: form.values.id, data: form.values })
-            : handleCreate(formValues)
-        }
-      />
-      {produtores!.length === 0 ? (
-        <div className='no-data-table-wrapper'>
-          <p>Não há dados disponíveis</p>
-        </div>
-      ) : (
+    <FadingComponent duration={50}>
+      <ProdutoresWrapper>
+        <FormProdutores
+          openForm={openForm}
+          setOpenForm={setOpenForm}
+          form={form}
+          onSubmit={(formValues) =>
+            form.values.id
+              ? editProdutor({ id: form.values.id, data: form.values })
+              : handleCreate(formValues)
+          }
+        />
+
         <TableCustumized
           setPaginationValue={setActivePage}
           paginationValue={activePage}
@@ -98,23 +97,23 @@ export default function Produtores() {
           onDelete={(row) => handleDelete(row)}
           onEdit={(row) => handleEdit(row)}
         />
-      )}
 
-      <Modal
-        title={`Tem certeza que deseja deletar o produtor: ${form.values.nomeProdutor}`}
-        opened={openModalDelete}
-        centered
-        transitionProps={{ transition: 'fade', duration: 200 }}
-        onClose={() => setOpenModalDelete(false)}
-      >
-        <Button
-          color='red'
-          fullWidth
-          onClick={() => deleteProdutor(Number(form.values.id))}
+        <Modal
+          title={`Tem certeza que deseja deletar o produtor: ${form.values.nomeProdutor}`}
+          opened={openModalDelete}
+          centered
+          transitionProps={{ transition: 'fade', duration: 200 }}
+          onClose={() => setOpenModalDelete(false)}
         >
-          Confirmar
-        </Button>
-      </Modal>
-    </ProdutoresWrapper>
+          <Button
+            color='red'
+            fullWidth
+            onClick={() => deleteProdutor(Number(form.values.id))}
+          >
+            Confirmar
+          </Button>
+        </Modal>
+      </ProdutoresWrapper>
+    </FadingComponent>
   )
 }
