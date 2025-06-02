@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Roboto } from 'next/font/google'
 import '@mantine/core/styles.css'
+import '@mantine/charts/styles.css'
 import { ColorSchemeScript, mantineHtmlProps } from '@mantine/core'
 import { Providers } from './providers'
 

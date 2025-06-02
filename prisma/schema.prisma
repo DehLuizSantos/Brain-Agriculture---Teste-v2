@@ -27,7 +27,7 @@ model Fazenda {
   totalHectares    Int
   areaAgricultavel Int
   areaVegetacao    Int
-  culturas         String // será armazenado como JSON
+  culturas         String?
   estado           String
   cidade           String
   produtorId       Int

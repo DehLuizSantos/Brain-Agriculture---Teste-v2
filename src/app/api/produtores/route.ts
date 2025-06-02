@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { z } from 'zod'
-import { ProdutorType } from '../../../../types/interfaces/produtores'
+import { Culturas, ProdutorType } from '../../../../types/interfaces/produtores'
 
 // Schema para validação do POST
 const produtorSchema = z.object({
@@ -20,7 +20,7 @@ const produtorSchema = z.object({
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
-    const parsed = produtorSchema.parse(body)
+    const parsed = produtorSchema.parse(body) // o seu schema já validado
 
     const {
       nomeProdutor,
@@ -34,6 +34,7 @@ export async function POST(req: NextRequest) {
       cidade,
     } = parsed
 
+    // Validar soma das áreas (redundante, mas ok)
     if (areaAgricultavel + areaVegetacao > totalHectares) {
       return NextResponse.json(
         {
@@ -130,7 +131,23 @@ export async function GET(req: NextRequest) {
       },
     })
 
-    // ✅ Adaptar os dados ao formato ProdutorType[]
+    // Função para validar e parsear culturas
+    function parseCulturas(raw: unknown): Culturas[] {
+      try {
+        // Faz parse do JSON
+        const parsed = typeof raw === 'string' ? JSON.parse(raw) : raw
+
+        // Usa o Zod para validar o array
+        const culturas = z
+          .array(z.enum(['Soja', 'Milho', 'Algodão', 'Café', 'Cana de Açucar']))
+          .parse(parsed)
+
+        return culturas
+      } catch {
+        return []
+      }
+    }
+
     const produtores: ProdutorType[] = produtoresDb.flatMap((produtor) =>
       produtor.fazendas.map((fazenda) => ({
         id: produtor.id,
@@ -140,7 +157,7 @@ export async function GET(req: NextRequest) {
         totalHectares: fazenda.totalHectares,
         areaAgricultavel: fazenda.areaAgricultavel,
         areaVegetacao: fazenda.areaVegetacao,
-        culturasPlantadas: JSON.parse(fazenda.culturas),
+        culturasPlantadas: parseCulturas(fazenda.culturas),
         estado: fazenda.estado,
         cidade: fazenda.cidade,
       }))
