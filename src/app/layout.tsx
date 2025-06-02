@@ -23,7 +23,7 @@ export default function RootLayout({
   return (
     <html lang='pt-BR' {...mantineHtmlProps} className={roboto.variable}>
       <head>
-        <ColorSchemeScript />
+        <ColorSchemeScript defaultColorScheme='dark' />
       </head>
       <body className={`${roboto.variable}`}>
         <Providers>{children}</Providers>

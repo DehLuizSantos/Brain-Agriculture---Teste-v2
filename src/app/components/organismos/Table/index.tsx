@@ -16,6 +16,7 @@ type Props<T> = {
   onEdit?: (row: T) => void
   onDelete?: (row: T) => void
 }
+const PAGE_SIZE = 20 // define o número de registros por página fixo
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export default function TableCustomized<T extends { [key: string]: any }>({
@@ -27,6 +28,8 @@ export default function TableCustomized<T extends { [key: string]: any }>({
   onEdit,
   onDelete,
 }: Props<T>) {
+  const totalPages = Math.ceil(totalData / PAGE_SIZE)
+
   return (
     <TableWrapper>
       <TableContainer striped highlightOnHover withColumnBorders>
@@ -86,7 +89,7 @@ export default function TableCustomized<T extends { [key: string]: any }>({
         </Table.Tbody>
       </TableContainer>
       <Pagination
-        total={totalData}
+        total={totalPages} // páginas, não total de registros
         value={paginationValue}
         onChange={setPaginationValue}
         p={20}

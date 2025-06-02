@@ -6,6 +6,7 @@ export const AppShellHeaderContainer = styled.div`
   justify-content: space-between;
   padding: 0 30px;
   height: 100%;
+  background-color: ${(props) => props.theme.colors.dark};
 
   h3 {
     color: ${(props) => props.theme.colors.white};

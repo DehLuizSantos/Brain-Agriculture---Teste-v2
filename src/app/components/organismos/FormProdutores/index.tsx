@@ -1,33 +1,45 @@
 'use-client'
-import { Dispatch, SetStateAction } from 'react'
+
 import {
   Button,
+  Group,
   MultiSelect,
   NumberInput,
+  Radio,
   Select,
   TextInput,
 } from '@mantine/core'
 import { FormInputs, FormProdutoresContainer, Title } from './styles'
-import { ProdutorType } from '../../../../../types/interfaces/produtores'
+import {
+  produtoresInitialValues,
+  ProdutorType,
+} from '../../../../../types/interfaces/produtores'
 import { UseFormReturnType } from '@mantine/form'
+import { Inputcpf } from '../../atomos/InputCPF'
+import { useState } from 'react'
+import InputCnpj from '../../atomos/InputCNPJ'
 
 type FormProdutorProps = {
   initialValues?: ProdutorType
   onSubmit: (values: ProdutorType) => void
   form: UseFormReturnType<ProdutorType>
   submitLabel?: string
-  setOpenForm: Dispatch<SetStateAction<boolean>>
+  setOpenForm: (value: boolean) => void
   openForm: boolean
 }
+
 export default function FormProdutores({
   form,
   onSubmit,
   openForm,
   setOpenForm,
 }: FormProdutorProps) {
+  const [isFisicalPerson, setIsFisicalPerson] = useState('fisica')
+
   const submitValues = (row: ProdutorType) => {
     onSubmit(row)
   }
+
   return (
     <FormProdutoresContainer>
       <Title>
@@ -48,9 +60,14 @@ export default function FormProdutores({
           )}
           <Button
             className='button'
-            onClick={() =>
-              openForm ? submitValues(form.values) : setOpenForm(!openForm)
-            }
+            onClick={() => {
+              if (openForm) {
+                form.onSubmit(submitValues)()
+              } else {
+                form.setValues(produtoresInitialValues)
+                setOpenForm(true)
+              }
+            }}
             color='green'
           >
             {openForm ? 'Salvar' : 'Criar'}
@@ -59,66 +76,92 @@ export default function FormProdutores({
       </Title>
 
       {openForm && (
-        <FormInputs>
-          <TextInput
-            placeholder='Nome do Produtor'
-            {...form.getInputProps('nomeProdutor')}
-            required
-          />
+        <>
+          <FormInputs>
+            <div className='dialog'>
+              <Radio.Group
+                name='isPessoaFisica'
+                label='Pessoa fisica ou juridica?'
+                value={isFisicalPerson}
+                onChange={(e) => {
+                  setIsFisicalPerson(e)
+                }}
+                style={{ margin: '20px 0' }}
+              >
+                <Group mt='xs'>
+                  <Radio color='green' value='fisica' label='Fisíca' />
+                  <Radio color='green' value='juridica' label='Jurídica' />
+                </Group>
+              </Radio.Group>
+            </div>
+            <TextInput
+              label='Nome do Produtor'
+              {...form.getInputProps('nomeProdutor')}
+              error={form.getInputProps('nomeProdutor').error}
+              required
+            />
 
-          <TextInput
-            placeholder='Documento'
-            {...form.getInputProps('documento')}
-            required
-          />
+            {isFisicalPerson === 'fisica' ? (
+              <Inputcpf form={form} />
+            ) : (
+              <InputCnpj form={form} />
+            )}
 
-          <TextInput
-            placeholder='Nome da Fazenda'
-            {...form.getInputProps('nomeFazenda')}
-            required
-          />
+            <TextInput
+              label='Nome da Fazenda'
+              {...form.getInputProps('nomeFazenda')}
+              error={form.getInputProps('nomeFazenda').error}
+              required
+            />
 
-          <NumberInput
-            placeholder='Total de Hectares'
-            {...form.getInputProps('totalHectares')}
-            min={1}
-            required
-          />
+            <NumberInput
+              label='Total de Hectares'
+              {...form.getInputProps('totalHectares')}
+              error={form.getInputProps('totalHectares').error}
+              min={1}
+              required
+            />
 
-          <NumberInput
-            placeholder='Área Agricultável'
-            {...form.getInputProps('areaAgricultavel')}
-            min={0}
-            required
-          />
+            <NumberInput
+              label='Área Agricultável'
+              {...form.getInputProps('areaAgricultavel')}
+              error={form.getInputProps('areaAgricultavel').error}
+              min={0}
+              required
+            />
 
-          <NumberInput
-            placeholder='Área de Vegetação'
-            {...form.getInputProps('areaVegetacao')}
-            min={0}
-            required
-          />
+            <NumberInput
+              label='Área de Vegetação'
+              {...form.getInputProps('areaVegetacao')}
+              error={form.getInputProps('areaVegetacao').error}
+              min={0}
+              required
+            />
 
-          <MultiSelect
-            placeholder='Culturas Plantadas'
-            data={['Soja', 'Milho', 'Algodão', 'Café', 'Cana de Açucar']}
-            {...form.getInputProps('culturasPlantadas')}
-            required
-          />
+            <MultiSelect
+              label='Culturas Plantadas'
+              data={['Soja', 'Milho', 'Algodão', 'Café', 'Cana de Açucar']}
+              {...form.getInputProps('culturasPlantadas')}
+              error={form.getInputProps('culturasPlantadas').error}
+              required
+            />
 
-          <Select
-            placeholder='Estado'
-            data={['SP', 'MG', 'PR', 'RS', 'BA']}
-            {...form.getInputProps('estado')}
-            required
-          />
+            <Select
+              label='Estado'
+              data={['SP', 'MG', 'PR', 'RS', 'BA']}
+              error={form.getInputProps('estado').error}
+              {...form.getInputProps('estado')}
+              required
+            />
 
-          <TextInput
-            placeholder='Cidade'
-            {...form.getInputProps('cidade')}
-            required
-          />
-        </FormInputs>
+            <TextInput
+              label='Cidade'
+              error={form.getInputProps('cidade').error}
+              {...form.getInputProps('cidade')}
+              required
+            />
+          </FormInputs>
+        </>
       )}
     </FormProdutoresContainer>
   )

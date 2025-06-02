@@ -18,11 +18,14 @@
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
+    "@emotion/server": "^11.11.0",
     "@emotion/styled": "^11.14.0",
     "@mantine/core": "^8.0.2",
+    "@mantine/emotion": "^8.0.2",
     "@mantine/form": "^8.0.2",
     "@mantine/hooks": "^8.0.2",
     "@prisma/client": "^6.8.2",
+    "@tanstack/react-query": "^5.79.0",
     "mantine-form-zod-resolver": "^1.2.1",
     "next": "15.3.2",
     "next-auth": "^4.24.11",
@@ -30,7 +33,8 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "sqlite3": "^5.1.7",
-    "zod": "^3.25.42"
+    "zod": "^3.25.42",
+    "zustand": "^5.0.5"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

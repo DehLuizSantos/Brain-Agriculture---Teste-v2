@@ -1,5 +1,10 @@
 import styled from '@emotion/styled'
+import { AppShell } from '@mantine/core'
 import Link from 'next/link'
+
+export const Navbar = styled(AppShell.Navbar)`
+  background-color: ${(props) => props.theme.colors.dark};
+`
 
 export const Links = styled(Link)`
   display: flex;
@@ -30,4 +35,6 @@ export const Logo = styled.div`
   align-items: center;
   justify-content: center;
   margin: 40px;
+  width: auto;
+  height: auto;
 `

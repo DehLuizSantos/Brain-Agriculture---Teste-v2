@@ -43,6 +43,7 @@ export const Title = styled.div`
 `
 export const FormInputs = styled.form`
   background-color: ${(props) => props.theme.colors.dark};
+  text-align: left;
   border-radius: 5px;
   padding: 15px;
   margin: 30px 0;
@@ -59,8 +60,7 @@ export const FormInputs = styled.form`
       width: 200px;
     }
   }
-
-  .mantine-MultiSelect-option {
-    color: red;
+  .dialog {
+    width: 100%;
   }
 `
