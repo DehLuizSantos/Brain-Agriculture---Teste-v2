@@ -24,6 +24,8 @@ export const FormProdutoresContainer = styled.div`
 `
 
 export const Title = styled.div`
+  text-align: left;
+
   @media (min-width: 480px) {
     display: flex;
     align-items: center;
