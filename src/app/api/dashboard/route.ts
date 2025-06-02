@@ -5,18 +5,17 @@ export async function GET() {
   try {
     const fazendas = await prisma.fazenda.findMany()
 
-    // Se não houver fazendas, já retorna um objeto padrão
-    if (!fazendas) {
+    if (!fazendas || fazendas.length === 0) {
       return NextResponse.json(
         {
           totalFazendas: 0,
           totalHectares: 0,
-          porEstado: {},
-          porCultura: {},
-          usoSolo: {
-            areaAgricultavel: 0,
-            areaVegetacao: 0,
-          },
+          porEstado: [],
+          porCultura: [],
+          usoSolo: [
+            { name: 'Agricultável', value: 0 },
+            { name: 'Vegetação', value: 0 },
+          ],
         },
         { status: 200 }
       )
@@ -28,53 +27,66 @@ export async function GET() {
       0
     )
 
-    const porEstado: Record<string, number> = {}
-    const porCultura: Record<string, number> = {}
+    const estadoMap = new Map<string, number>()
+    const culturaMap = new Map<string, number>()
     let areaAgricultavel = 0
     let areaVegetacao = 0
 
     for (const fazenda of fazendas) {
       // Estado
       if (fazenda.estado) {
-        porEstado[fazenda.estado] = (porEstado[fazenda.estado] || 0) + 1
+        estadoMap.set(fazenda.estado, (estadoMap.get(fazenda.estado) ?? 0) + 1)
       }
 
-      // Áreas
+      // Uso do Solo
       areaAgricultavel += fazenda.areaAgricultavel ?? 0
       areaVegetacao += fazenda.areaVegetacao ?? 0
 
       // Culturas
       if (fazenda.culturas) {
-        try {
-          const culturas: string[] =
-            typeof fazenda.culturas === 'string'
-              ? JSON.parse(fazenda.culturas)
-              : fazenda.culturas
+        let culturas: string[] = []
 
-          if (Array.isArray(culturas)) {
-            for (const cultura of culturas) {
-              porCultura[cultura] = (porCultura[cultura] || 0) + 1
-            }
+        try {
+          if (typeof fazenda.culturas === 'string') {
+            culturas = JSON.parse(fazenda.culturas)
+          } else if (Array.isArray(fazenda.culturas)) {
+            culturas = fazenda.culturas
           }
-        } catch (error) {
-          console.error(
-            'Erro ao processar culturas na fazenda',
-            fazenda.id,
-            error
-          )
+        } catch (err) {
+          console.error('Erro ao parsear culturas da fazenda:', fazenda.id, err)
+        }
+
+        for (const cultura of culturas) {
+          if (typeof cultura === 'string') {
+            culturaMap.set(cultura, (culturaMap.get(cultura) ?? 0) + 1)
+          }
         }
       }
     }
+
+    const porEstado = Array.from(estadoMap.entries()).map(([name, value]) => ({
+      name,
+      value,
+    }))
+
+    const porCultura = Array.from(culturaMap.entries()).map(
+      ([name, value]) => ({
+        name,
+        value,
+      })
+    )
+
+    const usoSolo = [
+      { name: 'Agricultável', value: areaAgricultavel },
+      { name: 'Vegetação', value: areaVegetacao },
+    ]
 
     return NextResponse.json({
       totalFazendas,
       totalHectares,
       porEstado,
       porCultura,
-      usoSolo: {
-        areaAgricultavel,
-        areaVegetacao,
-      },
+      usoSolo,
     })
   } catch (error) {
     console.error('Erro no dashboard:', error)

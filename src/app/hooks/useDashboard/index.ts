@@ -3,12 +3,18 @@ import { useQuery } from '@tanstack/react-query'
 type DashboardData = {
   totalFazendas: number
   totalHectares: number
-  porEstado: Record<string, number>
-  porCultura: Record<string, number>
+  porEstado: {
+    name: string
+    value: number
+  }[]
+  porCultura: {
+    name: string
+    value: number
+  }[]
   usoSolo: {
-    areaAgricultavel: number
-    areaVegetacao: number
-  }
+    name: string
+    value: number
+  }[]
 }
 
 export function useDashboardData() {
