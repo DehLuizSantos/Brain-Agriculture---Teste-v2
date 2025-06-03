@@ -4,6 +4,7 @@ import { Dispatch, SetStateAction } from 'react'
 import { AppShellHeaderContainer } from './styles'
 import Image from 'next/image'
 import { useProdutoresStore } from '@/store/produtoresStore'
+import { usePathname } from 'next/navigation'
 
 type AppShellHeaderProps = {
   mobileOpened: boolean
@@ -20,6 +21,9 @@ export default function AppShellHeader({
 }: AppShellHeaderProps) {
   const { data: session } = useSession()
   const { setSearch, search } = useProdutoresStore()
+  const pathname = usePathname()
+
+  const routesAbleToSearch = ['/system/produtores']
 
   return (
     <AppShell.Header>
@@ -29,6 +33,7 @@ export default function AppShellHeader({
           placeholder='Pesquisar'
           onChange={(e) => setSearch(e.target.value)}
           value={search}
+          disabled={!routesAbleToSearch.includes(pathname)}
           rightSection={
             <Image
               src={'/icons/search.svg'}

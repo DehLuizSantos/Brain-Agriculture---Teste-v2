@@ -1,85 +1,43 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma' // ajuste o caminho se necessário
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-nocheck
+/* eslint-disable */
+import { NextResponse } from 'next/server'
+import { handleDELETE, handlePUT } from './route-handlers'
 
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function DELETE(request: Request, { params }: any) {
   try {
     const id = Number(params.id)
     if (isNaN(id))
       return NextResponse.json({ error: 'ID inválido' }, { status: 400 })
 
-    // Remove as fazendas relacionadas
-    await prisma.fazenda.deleteMany({
-      where: {
-        produtorId: id,
-      },
-    })
-
-    await prisma.produtor.delete({
-      where: { id },
-    })
-
-    return NextResponse.json({ message: 'Produtor deletado com sucesso' })
+    const result = await handleDELETE(id)
+    return NextResponse.json(result)
   } catch (error) {
-    console.error(error)
     return NextResponse.json(
-      { error: 'Erro ao deletar produtor' },
+      {
+        error: 'Erro ao deletar',
+        details: error instanceof Error ? error.message : String(error),
+      },
       { status: 500 }
     )
   }
 }
 
-export async function PUT(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function PUT(request: Request, { params }: any) {
   try {
     const id = Number(params.id)
     if (isNaN(id))
       return NextResponse.json({ error: 'ID inválido' }, { status: 400 })
 
     const body = await request.json()
-
-    const {
-      nomeProdutor,
-      documento,
-      nomeFazenda,
-      totalHectares,
-      areaAgricultavel,
-      areaVegetacao,
-      culturasPlantadas,
-      estado,
-      cidade,
-    } = body
-
-    // Atualiza produtor
-    await prisma.produtor.update({
-      where: { id },
-      data: {
-        nome: nomeProdutor,
-        documento,
-        fazendas: {
-          deleteMany: {}, // apaga a fazenda antiga
-          create: {
-            nome: nomeFazenda,
-            totalHectares,
-            areaAgricultavel,
-            areaVegetacao,
-            culturas: JSON.stringify(culturasPlantadas),
-            estado,
-            cidade,
-          },
-        },
-      },
-    })
-
-    return NextResponse.json({ message: 'Produtor atualizado com sucesso' })
+    const result = await handlePUT(id, body)
+    return NextResponse.json(result)
   } catch (error) {
-    console.error(error)
     return NextResponse.json(
-      { error: 'Erro ao atualizar produtor' },
+      {
+        error: 'Erro ao atualizar',
+        details: error instanceof Error ? error.message : String(error),
+      },
       { status: 500 }
     )
   }

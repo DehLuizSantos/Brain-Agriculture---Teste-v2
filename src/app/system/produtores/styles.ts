@@ -6,6 +6,11 @@ export const ProdutoresWrapper = styled.div`
   overflow-x: hidden;
   text-align: center;
 
+  .mantine-Modal-title {
+    font-size: ${(props) => props.theme.fonts.xsmall};
+    color: red;
+  }
+
   .no-data-table-wrapper {
     border-radius: 5px;
     p {
