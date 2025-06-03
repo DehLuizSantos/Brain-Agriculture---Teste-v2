@@ -116,32 +116,25 @@ Content-Type: application/json
 ### 📂 Estrutura do Projeto
 ```bash
 brain-agro/
-├── app/
-│   ├── api/
-│   │   └── produtores/
-│   │       ├── route.ts
-│   │       └── [id]/
-│   │           └── route.ts
-│   └── (main)/
-│       └── pages/
-├── lib/
-│   ├── prisma.ts
-│   └── queries/
-├── prisma/
-│   ├── dev.db
-│   └── schema.prisma
 ├── src/
+│   ├── app/
+│   │   ├── api/              # Backend (Rotas API)
+        └── dashboard/
+│   │   │       ├── route.ts             
+│   │   └── produtores/
+│   │   │       ├── route.ts
+│   │   │       └── [id]/
+│   │   │           └── route.ts
+│   │   └── (pages)            # Frontend (Next.js App Router)
 │   ├── components/
-│   ├── hooks/
-│   ├── providers/
-│   ├── stores/
+│   ├── lib/
+│   │   └── prisma.ts         
 │   └── styles/
-├── tests/
+├── prisma/                    
+│   ├── schema.prisma
+│   └── migrations/
 ├── .env
-├── .eslintrc.json
-├── next.config.js
 ├── package.json
-├── README.md
 └── tsconfig.json
 
 ```
