@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { z } from 'zod'
 import { Culturas, ProdutorType } from '../../../../types/interfaces/produtores'
-import { Prisma } from '@prisma/client'
 
 // Schema para validação do POST
 const produtorSchema = z.object({
@@ -55,7 +54,6 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // Upsert: tenta atualizar produtor pelo documento, ou cria
     const produtor = await prisma.produtor.upsert({
       where: { documento },
       update: {
@@ -107,11 +105,12 @@ export async function GET(req: NextRequest) {
     const limit = Math.min(Number(searchParams.get('limit') || '10'), 100)
     const search = searchParams.get('search')?.toLowerCase() || ''
 
+    // Busca case-insensitive manual para SQLite
     const where = search
       ? {
           nome: {
             contains: search,
-            mode: Prisma.QueryMode.insensitive,
+            // mode: 'insensitive' não suportado no SQLite
           },
         }
       : {}
@@ -126,9 +125,16 @@ export async function GET(req: NextRequest) {
       orderBy: { nome: 'asc' },
     })
 
+    // Filtro case-insensitive manual
+    const produtoresFiltrados = search
+      ? produtoresDb.filter((p) =>
+          p.nome.toLowerCase().includes(search.toLowerCase())
+        )
+      : produtoresDb
+
     const produtores: ProdutorType[] = []
 
-    for (const produtor of produtoresDb) {
+    for (const produtor of produtoresFiltrados) {
       for (const fazenda of produtor.fazendas) {
         produtores.push({
           id: produtor.id,
