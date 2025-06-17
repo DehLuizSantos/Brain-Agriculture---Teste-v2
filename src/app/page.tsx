@@ -6,9 +6,11 @@ import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { ContainerLogin, FormContainer, Logo } from './styles'
 import { useForm } from '@mantine/form'
+import { useState } from 'react'
 
 export default function LoginPage() {
   const router = useRouter()
+  const [loading, setLoading] = useState(false)
 
   const form = useForm({
     mode: 'uncontrolled',
@@ -26,6 +28,7 @@ export default function LoginPage() {
   })
 
   const handleSubmit = async () => {
+    setLoading(true)
     const res = await signIn('credentials', {
       redirect: false,
       email: form.values.email,
@@ -35,24 +38,25 @@ export default function LoginPage() {
 
     if (!form.isValid()) {
       form.setErrors({ email: res?.error, password: res?.error })
+      setLoading(false)
     } else {
       router.push('/system/dashboard')
+      setLoading(false)
     }
   }
 
   return (
     <ContainerLogin>
-      <Logo>
-        <Image
-          src={'/Logo.svg'}
-          alt='Emprestimos para agro negócio'
-          width={140}
-          height={62}
-          priority={true}
-        />
-      </Logo>
-
       <FormContainer onSubmit={form.onSubmit(() => handleSubmit())}>
+        <Logo>
+          <Image
+            src={'/Logo.svg'}
+            alt='Emprestimos para agro negócio'
+            width={140}
+            height={62}
+            priority={true}
+          />
+        </Logo>
         <TextInput
           placeholder='you@example.com'
           required
@@ -67,7 +71,13 @@ export default function LoginPage() {
           required
           mt='md'
         />
-        <Button color={'green'} fullWidth mt='xl' type='submit'>
+        <Button
+          color={'green'}
+          fullWidth
+          mt='xl'
+          type='submit'
+          loading={loading}
+        >
           Entrar
         </Button>
       </FormContainer>

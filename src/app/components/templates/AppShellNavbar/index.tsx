@@ -1,7 +1,7 @@
 'use-client'
 
 import Image from 'next/image'
-import { useState } from 'react'
+import { Dispatch, SetStateAction, useState } from 'react'
 import { Links, Logo, Navbar } from './styles'
 import { usePathname } from 'next/navigation'
 
@@ -11,9 +11,13 @@ type AppShellNavbar = {
     name: string
     icon: string
   }[]
+  setMobileOpened: Dispatch<SetStateAction<boolean>>
 }
 
-export default function AppShellNavbar({ links }: AppShellNavbar) {
+export default function AppShellNavbar({
+  links,
+  setMobileOpened,
+}: AppShellNavbar) {
   const pathname = usePathname()
   const [active, setActive] = useState(pathname)
 
@@ -33,7 +37,10 @@ export default function AppShellNavbar({ links }: AppShellNavbar) {
           data-active={item.link === active ? 'true' : 'false'}
           href={item.link}
           key={item.name}
-          onClick={() => setActive(item.link)}
+          onClick={() => {
+            setActive(item.link)
+            setMobileOpened(false)
+          }}
         >
           <Image
             width={15}

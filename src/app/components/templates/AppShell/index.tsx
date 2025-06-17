@@ -46,7 +46,7 @@ export default function LayoutWithSidebar({ children }: DashboardLayoutProps) {
           setMobileOpened={setMobileOpened}
         />
 
-        <AppShellNavbar links={links} />
+        <AppShellNavbar setMobileOpened={setMobileOpened} links={links} />
 
         <Main>{children}</Main>
       </AppShell>
