@@ -5,6 +5,7 @@ export const ProdutoresWrapper = styled.div`
   background-color: ${(props) => props.theme.colors.dark};
   overflow-x: hidden;
   text-align: center;
+  max-width: 1400px;
 
   .mantine-Modal-title {
     font-size: ${(props) => props.theme.fonts.xsmall};

@@ -2,39 +2,36 @@
 import TableCustumized, { Header } from '@/app/components/organismos/Table'
 import {
   produtoresInitialValues,
-  produtoresSchema,
   ProdutorType,
 } from '../../../../types/interfaces/produtores'
 import { ProdutoresWrapper } from './styles'
 import FormProdutores from '@/app/components/organismos/FormProdutores'
-import { useForm } from '@mantine/form'
-import { zodResolver } from 'mantine-form-zod-resolver'
+
 import { useProdutores } from '@/app/hooks/useProdutores'
 import { Button, Modal } from '@mantine/core'
 import { useProdutoresStore } from '@/store/produtoresStore'
 import { FadingComponent } from '@/app/components/atomos/FadingAnimation'
+import { useCallback } from 'react'
 
 export default function Produtores() {
-  const form = useForm<ProdutorType>({
-    initialValues: produtoresInitialValues,
-    validate: zodResolver(produtoresSchema),
-  })
   // Estado global com Zustand
   const {
-    openForm,
     setOpenForm,
     openModalDelete,
     setOpenModalDelete,
     activePage,
     setActivePage,
     search,
+    setProdutores,
+    produtores: produtoresZustand,
   } = useProdutoresStore()
 
   const handleEdit = (row: ProdutorType) => {
-    form.setValues(row)
+    setProdutores(row)
     setOpenForm(true)
   }
 
+  /* Requisições Hooks */
   const {
     produtores,
     total,
@@ -46,16 +43,20 @@ export default function Produtores() {
   } = useProdutores(activePage, search)
 
   const handleDelete = (row: ProdutorType) => {
-    form.setValues(row)
+    setProdutores(row)
     setOpenModalDelete(true)
   }
 
   // Exemplo de uso:
-  const handleCreate = (data: ProdutorType) => {
-    addProdutor(data)
-    setOpenForm(false)
-    form.reset()
-  }
+  const handleCreate = useCallback(
+    (data: ProdutorType) => {
+      addProdutor(data)
+      setOpenForm(false)
+      setProdutores(produtoresInitialValues)
+    },
+    [addProdutor, setOpenForm, setProdutores]
+  )
+
   const headers: Header<ProdutorType>[] = [
     { key: 'nomeProdutor', label: 'Nome do Produtor' },
     { key: 'documento', label: 'Documento' },
@@ -68,6 +69,20 @@ export default function Produtores() {
     { key: 'cidade', label: 'Cidade' },
   ]
 
+  const handleSubmit = useCallback(
+    (formValues: ProdutorType) => {
+      if (produtoresZustand!.id) {
+        editProdutor({
+          id: formValues.id!,
+          data: formValues!,
+        })
+      } else {
+        handleCreate(formValues)
+      }
+    },
+    [produtoresZustand, handleCreate, editProdutor]
+  )
+
   if (loading) return <p>Carregando produtores...</p>
 
   if (error) {
@@ -78,14 +93,10 @@ export default function Produtores() {
     <FadingComponent duration={50}>
       <ProdutoresWrapper>
         <FormProdutores
-          openForm={openForm}
-          setOpenForm={setOpenForm}
-          form={form}
-          onSubmit={(formValues) =>
-            form.values.id
-              ? editProdutor({ id: form.values.id, data: form.values })
-              : handleCreate(formValues)
-          }
+          initialValues={produtoresZustand}
+          onSubmit={(formValues) => {
+            handleSubmit(formValues)
+          }}
         />
 
         <TableCustumized
@@ -101,7 +112,7 @@ export default function Produtores() {
         <Modal
           size='xs'
           title={`Deletar:
-              ${form.values.nomeProdutor}`}
+              ${produtoresZustand!.nomeProdutor}`}
           opened={openModalDelete}
           centered
           transitionProps={{ transition: 'fade', duration: 200 }}
@@ -110,7 +121,7 @@ export default function Produtores() {
           <Button
             color='red'
             fullWidth
-            onClick={() => deleteProdutor(Number(form.values.id))}
+            onClick={() => deleteProdutor(Number(produtoresZustand!.id))}
           >
             Confirmar
           </Button>

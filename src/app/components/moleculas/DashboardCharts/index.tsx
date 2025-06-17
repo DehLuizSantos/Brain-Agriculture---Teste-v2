@@ -1,7 +1,7 @@
 'use client'
-import { SimpleGrid } from '@mantine/core'
 import { useDashboardData } from '@/app/hooks/useDashboard'
 import { DashboardPieChart } from '../../atomos/DashboardPieChart'
+import { DashboardChartsWrapper } from './styles'
 
 export function DashboardCharts() {
   const { data } = useDashboardData()
@@ -45,10 +45,10 @@ export function DashboardCharts() {
   ]
 
   return (
-    <SimpleGrid cols={{ base: 1, md: 3 }} spacing='md'>
+    <DashboardChartsWrapper>
       {dashboardPies.map((pie) => (
         <DashboardPieChart data={pie.data} title={pie.title} key={pie.title} />
       ))}
-    </SimpleGrid>
+    </DashboardChartsWrapper>
   )
 }

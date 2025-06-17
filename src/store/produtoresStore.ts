@@ -1,3 +1,8 @@
+import { isEqual } from 'lodash'
+import {
+  produtoresInitialValues,
+  ProdutorType,
+} from 'types/interfaces/produtores'
 import { create } from 'zustand'
 
 type ProdutoresStore = {
@@ -12,6 +17,9 @@ type ProdutoresStore = {
 
   search: string
   setSearch: (query: string) => void
+
+  produtores: ProdutorType | undefined
+  setProdutores: (produtor: ProdutorType | undefined) => void
 }
 
 export const useProdutoresStore = create<ProdutoresStore>((set) => ({
@@ -26,4 +34,10 @@ export const useProdutoresStore = create<ProdutoresStore>((set) => ({
 
   search: '',
   setSearch: (query) => set({ search: query }),
+
+  produtores: produtoresInitialValues,
+  setProdutores: (produtor) =>
+    set((state) =>
+      !isEqual(state.produtores, produtor) ? { produtores: produtor } : {}
+    ),
 }))
